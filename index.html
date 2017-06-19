@@ -12,7 +12,8 @@
 		<input type="submit">
 	</form>
 
-	<table id="votes_table" border="1">
+	<table id="votes_table" border="1" data-graph-container-before="1" data-graph-type="column">
+		<caption>Voting</caption>
 		<thead>
 			<tr>
 				<th data-sort="string">Members</th>
@@ -26,6 +27,8 @@
 
 	<script src="js/jquery-3.2.1.min.js"></script>
 	<script src="js/stupidtable.min.js"></script>
+	<script src="https://code.highcharts.com/highcharts.src.js"></script>
+	<script src="js/jquery.highchartTable-min.js"></script>
 	<script src="js/main.js"></script>
 </body>
 </html>

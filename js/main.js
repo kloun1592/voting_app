@@ -18,7 +18,8 @@ function showTable()
 
                 $("#votes_table tbody").append($tableRow) 
             }
-            sortTable("#votes_table")
+            sortTable("#votes_table");
+            $('#votes_table').highchartTable()
         },
         error: function (data)
         {
@@ -39,19 +40,27 @@ function checkForEmptyTable(tableId)
     return $("#" + tableId + "tbody").is(':empty') ? 1 : 0
 }
 
+function areVotesIncorrect(tdId)
+{ 
+    var number = $(tdId).html();
+    return number <= 1 ? 1 : 0;
+}
 
 function updateValueInTable(tdId, operation)
 {
     var number = $(tdId).html();
+
     if (operation == "incr")
     {
         $(tdId).updateSortVal(number++);
         $(tdId).text(number++);
+        window.location.reload(true);
     }
     else if(operation == "decr")
     {
         $(tdId).updateSortVal(number--);
         $(tdId).text(number--);
+        window.location.reload(true);
     }
     else
     {
@@ -73,45 +82,84 @@ $(document).ready(function()
         };
         $.post(ajaxurl, data, function(response) 
         {
-            alert(data['name'] + 'is added! Please update the page to see it.');
+            window.location.reload(true);
             //showTable();
         });
 
         event.preventDefault();
     });
 
+
+
     $(document).on("click", "button", function() 
     {
         var clickBtnValue = $(this).val();
-        var ajaxurl = 'app.php',
-        data =  
-        {
-            'action': clickBtnValue,
-            'name': $(this).data("member")
-        };
-
         var currentRow = $(this).closest("tr"); 
         var cellId = currentRow.find("td:eq(1)").attr('id');
 
-        if (clickBtnValue == "add_vote")
+        if (!areVotesIncorrect("#" + cellId))
         {
-            updateValueInTable("#" + cellId, "incr")
-        }
-        if (clickBtnValue == "delete_vote")
-        {
-            updateValueInTable("#" + cellId, "decr")
-        }
-        if (clickBtnValue == "delete_member")
-        {
-            currentRow.find("td").hide();
-        }
-
-        $.post(ajaxurl, data, function(response) 
-        {
-            if (response)
+            var ajaxurl = 'app.php',
+            data =  
             {
-                alert(response);
+                'action': clickBtnValue,
+                'name': $(this).data("member")
+            };
+
+            if (clickBtnValue == "add_vote")
+            {
+                updateValueInTable("#" + cellId, "incr");
             }
-        });
+            if (clickBtnValue == "delete_vote")
+            {
+                updateValueInTable("#" + cellId, "decr")
+            }
+            if (clickBtnValue == "delete_member")
+            {
+                currentRow.find("td").hide();
+                window.location.reload(true);
+            }
+
+            $.post(ajaxurl, data, function(response) 
+            {
+                if (response)
+                {
+                    alert(response);
+                }
+            });
+        }
+        else
+        {
+            if (clickBtnValue == "delete_vote")
+            {
+                alert("Votes can't be zero!");
+            }
+            else
+            {
+                var ajaxurl = 'app.php',
+                data =  
+                {
+                    'action': clickBtnValue,
+                    'name': $(this).data("member")
+                };
+
+                if (clickBtnValue == "add_vote")
+                {
+                    updateValueInTable("#" + cellId, "incr")
+                }
+                if (clickBtnValue == "delete_member")
+                {
+                    currentRow.find("td").hide();
+                }
+
+                $.post(ajaxurl, data, function(response) 
+                {
+                    if (response)
+                    {
+                        alert(response);
+                    }
+                });
+            }
+        }
     });
 });
